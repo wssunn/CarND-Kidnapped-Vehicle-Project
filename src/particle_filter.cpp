@@ -20,20 +20,37 @@
 
 using std::string;
 using std::vector;
+using std::normal_distribution;
 
-//test
+//create only once the default random engine
+static std::default_random_engine gen;
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
   /**
-   * TODO: Set the number of particles. Initialize all particles to 
+   * Set the number of particles. Initialize all particles to 
    *   first position (based on estimates of x, y, theta and their uncertainties
    *   from GPS) and all weights to 1. 
-   * TODO: Add random Gaussian noise to each particle.
-   * NOTE: Consult particle_filter.h for more information about this method 
-   *   (and others in this file).
+   * Add random Gaussian noise to each particle.
    */
-  num_particles = 0;  // TODO: Set the number of particles
+  num_particles = 100;
+  normal_distribution<double> dist_x(x, std[0]);
+  normal_distribution<double> dist_y(y, std[1]);
+  normal_distribution<double> dist_theta(theta, std[2]);
 
+  for (size_t i=0; i < num_particles; ++i)
+  {
+    // initialise a particle
+    Particle p;
+    p.id = int(i);
+    p.weight = 1.0;
+    p.x = dist_x(gen);
+    p.y = dist_y(gen);
+    p.theta = dist_theta(gen);
+
+    //Add the particles to the particle filter list
+    particles.push_back(p);
+  }
+  is_initialized = true;
 }
 
 void ParticleFilter::prediction(double delta_t, double std_pos[], 
