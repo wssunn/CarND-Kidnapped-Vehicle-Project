@@ -84,20 +84,25 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
     normal_distribution<double> dist_y(0.0, std_pos[1]);
     normal_distribution<double> dist_theta(0.0, std_pos[2]);
 
-    if (abs(yaw_rate) > 1e-5)
-    {
-      // Apply equations of motion model (turning)
-      double theta_pred = p.theta + yaw_rate *delta_t;
-      p.x += velocity / yaw_rate * (sin(theta_pred) - sin(p.theta));
-      p.y += velocity / yaw_rate * (cos(theta_pred) - cos(p.theta));
-      p.theta = theta_pred;
-    }
-    else
-    {
-      // Apply equations of motion model (turning)
-      p.x += velocity * delta_t * cos(p.theta);
-      p.y += velocity * delta_t * sin(p.theta);
-    }
+    // if (abs(yaw_rate) > 1e-5)
+    // {
+    //   // Apply equations of motion model (turning)
+    //   double theta_pred = p.theta + yaw_rate *delta_t;
+    //   p.x += velocity / yaw_rate * (sin(theta_pred) - sin(p.theta));
+    //   p.y += velocity / yaw_rate * (cos(theta_pred) - cos(p.theta));
+    //   p.theta = theta_pred;
+    // }
+    // else
+    // {
+    //   // Apply equations of motion model (turning)
+    //   p.x += velocity * delta_t * cos(p.theta);
+    //   p.y += velocity * delta_t * sin(p.theta);
+    // }
+
+    double theta_pred = p.theta + yaw_rate * delta_t;
+    p.x += velocity / yaw_rate * (sin(theta_pred) - sin(p.theta));
+    p.y += velocity / yaw_rate * (cos(theta_pred) - cos(p.theta));
+    p.theta = theta_pred;
 
     //add noise to prediction
     p.x += dist_x(gen);
