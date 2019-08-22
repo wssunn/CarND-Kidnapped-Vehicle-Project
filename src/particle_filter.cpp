@@ -59,7 +59,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
    * TODO: Add measurements to each particle and add random Gaussian noise.
    */
 
-  for (size_t i = 0; i < particles.size(); ++i)
+  for (unsigned int i = 0; i < particles.size(); ++i)
   {
     Particle *p = &particles[i];
 
@@ -78,9 +78,9 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
     }
 
     //add gaussian noise to the particles
-    normal_distribution<double> dist_x(p->x, std[0]);
-    normal_distribution<double> dist_y(p->y, std[1]);
-    normal_distribution<double> dist_theta(p->theta, std[2]);
+    normal_distribution<double> dist_x(p->x, std_pos[0]);
+    normal_distribution<double> dist_y(p->y, std_pos[1]);
+    normal_distribution<double> dist_theta(p->theta, std_pos[2]);
 
     //Update particle with noisy prediction
     p->x = dist_x(gen);
@@ -152,16 +152,6 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs>& predicted,
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], 
                                    const vector<LandmarkObs> &observations, 
                                    const Map &map_landmarks) {
-  /**
-   * updateWeights Updates the weights for each particle based on the likelihood
-   *   of the observed measurements. 
-   * @param sensor_range Range [m] of sensor
-   * @param std_landmark[] Array of dimension 2
-   *   [Landmark measurement uncertainty [x [m], y [m]]]
-   * @param observations Vector of landmark observations
-   * @param map Map class containing map landmarks
-   */
-
   /*
   for each particle:
     select landmarks within range
@@ -186,7 +176,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     {
       double distance = dist(p.x, p.y, map_landmark.x_f, map_landmark.y_f);
 
-      if (d < sensor_range){
+      if (distance < sensor_range)
+      {
         LandmarkObs l_within_range;
         l_within_range.id = map_landmark.id_i;
         l_within_range.x = map_landmark.x_f;
@@ -228,6 +219,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       double norm_factor = 2 * M_PI * std_x * std_y;
       double prob = exp(-(pow(obs_map.x - landmark_x, 2) / (2 * std_x * std_x) +
                           pow(obs_map.y - landmark_y, 2) / (2 * std_y * std_y)));
+             prob /= norm_factor;
       observations_map_coord.push_back(obs_map);
 
 
@@ -241,7 +233,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   double norm_factor = 0.0;
   for (const auto &p: particles){norm_factor += p.weight;}
   for (const auto &p: particles){
-    p.weight /= (norm_factor + std::numeric_limits<double>::epsilon());
+    p.weight /= norm_factor + std::numeric_limits<double>::epsilon();
     }
 
 }//main function:updateweight
@@ -261,7 +253,7 @@ void ParticleFilter::resample() {
                                                 particle_weights.end());
   
   vector<Particle> resampled_particles;
-  for (size_t i = 0; i < num_particles; ++i){
+  for (unsigned int i = 0; i < num_particles; ++i){
     int k = weighted_dist(gen);
     resampled_particles.push_back(particles[k]);
   }
@@ -270,7 +262,7 @@ void ParticleFilter::resample() {
 
   //reset all weights
   for (auto &p : particles){p.weight = 1.0;}
-  
+
 }//main function: resample
 
 void ParticleFilter::SetAssociations(Particle& particle, 
