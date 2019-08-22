@@ -32,7 +32,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
    *   from GPS) and all weights to 1. 
    * Add random Gaussian noise to each particle.
    */
-  num_particles = 100;
+  num_particles = 1000;
   normal_distribution<double> dist_x(x, std[0]);
   normal_distribution<double> dist_y(y, std[1]);
   normal_distribution<double> dist_theta(theta, std[2]);
@@ -59,38 +59,54 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
    * TODO: Add measurements to each particle and add random Gaussian noise.
    */
 
-  for (unsigned int i = 0; i < particles.size(); ++i)
+  for (auto &p : particles)
   {
-    Particle *p = &particles[i];
-
-    // if (abs(yaw_rate) > 1e-5)
-    // {
-    //   // Apply equations of motion model (turning)
-    //   double theta_pred = p->theta + yaw_rate * delta_t;
-    //   p->x += velocity / yaw_rate * (sin(theta_pred) - sin(p->theta));
-    //   p->y += velocity / yaw_rate * (cos(theta_pred) - cos(p->theta));
-    // }
-    // else
-    // {
-    //   // Apply equations of motion model (turning)
-    //   p->x += velocity * delta_t * cos(p->theta);
-    //   p->y += velocity * delta_t * sin(p->theta);
-    // }
-
-    double theta_pred = p->theta + yaw_rate * delta_t;
-    p->x += velocity / yaw_rate * (sin(theta_pred) - sin(p->theta));
-    p->y += velocity / yaw_rate * (cos(theta_pred) - cos(p->theta));
+    double theta_pred = p.theta + yaw_rate * delta_t;
+    p.x += velocity / yaw_rate * (sin(theta_pred) - sin(p.theta));
+    p.y += velocity / yaw_rate * (cos(theta_pred) - cos(p.theta));
 
     //add gaussian noise to the particles
-    normal_distribution<double> dist_x(p->x, std_pos[0]);
-    normal_distribution<double> dist_y(p->y, std_pos[1]);
-    normal_distribution<double> dist_theta(p->theta, std_pos[2]);
+    normal_distribution<double> dist_x(p.x, std_pos[0]);
+    normal_distribution<double> dist_y(p.y, std_pos[1]);
+    normal_distribution<double> dist_theta(p.theta, std_pos[2]);
 
     //Update particle with noisy prediction
-    p->x = dist_x(gen);
-    p->y = dist_y(gen);
-    p->theta = dist_theta(gen);
+    p.x     = dist_x(gen);
+    p.y     = dist_y(gen);
+    p.theta = dist_theta(gen);
   }
+  // for (unsigned int i = 0; i < particles.size(); ++i)
+  // {
+  //   Particle *p = &particles[i];
+
+  //   // if (abs(yaw_rate) > 1e-5)
+  //   // {
+  //   //   // Apply equations of motion model (turning)
+  //   //   double theta_pred = p->theta + yaw_rate * delta_t;
+  //   //   p->x += velocity / yaw_rate * (sin(theta_pred) - sin(p->theta));
+  //   //   p->y += velocity / yaw_rate * (cos(theta_pred) - cos(p->theta));
+  //   // }
+  //   // else
+  //   // {
+  //   //   // Apply equations of motion model (turning)
+  //   //   p->x += velocity * delta_t * cos(p->theta);
+  //   //   p->y += velocity * delta_t * sin(p->theta);
+  //   // }
+
+  //   double theta_pred = p->theta + yaw_rate * delta_t;
+  //   p->x += velocity / yaw_rate * (sin(theta_pred) - sin(p->theta));
+  //   p->y += velocity / yaw_rate * (cos(theta_pred) - cos(p->theta));
+
+  //   //add gaussian noise to the particles
+  //   normal_distribution<double> dist_x(p->x, std_pos[0]);
+  //   normal_distribution<double> dist_y(p->y, std_pos[1]);
+  //   normal_distribution<double> dist_theta(p->theta, std_pos[2]);
+
+  //   //Update particle with noisy prediction
+  //   p->x = dist_x(gen);
+  //   p->y = dist_y(gen);
+  //   p->theta = dist_theta(gen);
+  // }
   // for (size_t i = 0; i < particles.size(); ++i)
   // {
   //   Particle p = particles[i];
@@ -172,7 +188,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   double std_y = std_landmark[1];
 
   for (auto &p : particles){
-  
+    double particle_likelihood = 1.0;
     //select landmarks within range*************************************
     vector<LandmarkObs> landmarks_within_range;
 
@@ -190,7 +206,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       }
     }
 
-    // for each observation:
+    // for each observation:**********************************************
     //   transform observation into map_coord
     //   data association
     //   compute weight
@@ -220,16 +236,18 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       }
 
       //compute weight for this observation**********************************
-      double norm_factor = 2 * M_PI * std_x * std_y;
+      double denominator = 2 * M_PI * std_x * std_y;
       double prob = exp(-(pow(obs_map.x - landmark_x, 2) / (2 * std_x * std_x) +
                           pow(obs_map.y - landmark_y, 2) / (2 * std_y * std_y)));
-             prob /= norm_factor;
+      prob /= denominator;
       observations_map_coord.push_back(obs_map);
 
 
       //compute total weight by multiplying all prob************************
-      p.weight *= prob;
+      particle_likelihood *= prob;
     }//for each observation
+
+    p.weight = particle_likelihood;
 
   }//for each particle
 
@@ -237,7 +255,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   double norm_factor = 0.0;
   for (const auto &p: particles){norm_factor += p.weight;}
   for (auto &p: particles){
-    p.weight /= norm_factor + std::numeric_limits<double>::epsilon();
+    p.weight /= (norm_factor + std::numeric_limits<double>::epsilon());
     }
 
 }//main function:updateweight
