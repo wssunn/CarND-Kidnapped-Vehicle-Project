@@ -60,6 +60,7 @@ class ParticleFilter {
   /**
    * dataAssociation Finds which observations correspond to which landmarks 
    *   (likely by using a nearest-neighbors data association).
+   * update observation id with nearest predicted
    * @param predicted Vector of predicted landmark observations
    * @param observations Vector of landmark observations
    */

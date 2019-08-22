@@ -32,7 +32,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
    *   from GPS) and all weights to 1. 
    * Add random Gaussian noise to each particle.
    */
-  num_particles = 100;
+  num_particles = 1000;
   normal_distribution<double> dist_x(x, std[0]);
   normal_distribution<double> dist_y(y, std[1]);
   normal_distribution<double> dist_theta(theta, std[2]);
@@ -287,8 +287,8 @@ void ParticleFilter::resample() {
   particles.clear();
   particles = resampled_particles;
 
-  //reset all weights
-  // for (auto &p : particles){p.weight = 1.0;}
+  reset all weights
+  for (auto &p : particles){p.weight = 1.0;}
 
 }//main function: resample
 
