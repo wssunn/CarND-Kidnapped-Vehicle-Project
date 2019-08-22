@@ -59,54 +59,52 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
    * TODO: Add measurements to each particle and add random Gaussian noise.
    */
 
-  for (auto &p : particles)
-  {
-    double theta_pred = p.theta + yaw_rate * delta_t;
-    p.x += velocity / yaw_rate * (sin(theta_pred) - sin(p.theta));
-    p.y += velocity / yaw_rate * (cos(theta_pred) - cos(p.theta));
-
-    //add gaussian noise to the particles
-    normal_distribution<double> dist_x(p.x, std_pos[0]);
-    normal_distribution<double> dist_y(p.y, std_pos[1]);
-    normal_distribution<double> dist_theta(p.theta, std_pos[2]);
-
-    //Update particle with noisy prediction
-    p.x     = dist_x(gen);
-    p.y     = dist_y(gen);
-    p.theta = dist_theta(gen);
-  }
-  // for (unsigned int i = 0; i < particles.size(); ++i)
+  // for (auto &p : particles)
   // {
-  //   Particle *p = &particles[i];
-
-  //   // if (abs(yaw_rate) > 1e-5)
-  //   // {
-  //   //   // Apply equations of motion model (turning)
-  //   //   double theta_pred = p->theta + yaw_rate * delta_t;
-  //   //   p->x += velocity / yaw_rate * (sin(theta_pred) - sin(p->theta));
-  //   //   p->y += velocity / yaw_rate * (cos(theta_pred) - cos(p->theta));
-  //   // }
-  //   // else
-  //   // {
-  //   //   // Apply equations of motion model (turning)
-  //   //   p->x += velocity * delta_t * cos(p->theta);
-  //   //   p->y += velocity * delta_t * sin(p->theta);
-  //   // }
-
-  //   double theta_pred = p->theta + yaw_rate * delta_t;
-  //   p->x += velocity / yaw_rate * (sin(theta_pred) - sin(p->theta));
-  //   p->y += velocity / yaw_rate * (cos(theta_pred) - cos(p->theta));
+  //   double theta_pred = p.theta + yaw_rate * delta_t;
+  //   p.x += velocity / yaw_rate * (sin(theta_pred) - sin(p.theta));
+  //   p.y += velocity / yaw_rate * (cos(theta_pred) - cos(p.theta));
+  //   p.theta = theta_pred;
 
   //   //add gaussian noise to the particles
-  //   normal_distribution<double> dist_x(p->x, std_pos[0]);
-  //   normal_distribution<double> dist_y(p->y, std_pos[1]);
-  //   normal_distribution<double> dist_theta(p->theta, std_pos[2]);
+  //   normal_distribution<double> dist_x(p.x, std_pos[0]);
+  //   normal_distribution<double> dist_y(p.y, std_pos[1]);
+  //   normal_distribution<double> dist_theta(p.theta, std_pos[2]);
 
   //   //Update particle with noisy prediction
-  //   p->x = dist_x(gen);
-  //   p->y = dist_y(gen);
-  //   p->theta = dist_theta(gen);
+  //   p.x     = dist_x(gen);
+  //   p.y     = dist_y(gen);
+  //   p.theta = dist_theta(gen);
   // }
+  for (auto &p : particles)
+  {
+
+    //add gaussian noise to the particles
+    normal_distribution<double> dist_x(0.0, std_pos[0]);
+    normal_distribution<double> dist_y(0.0, std_pos[1]);
+    normal_distribution<double> dist_theta(0.0, std_pos[2]);
+
+    if (abs(yaw_rate) > 1e-5)
+    {
+      // Apply equations of motion model (turning)
+      double theta_pred = p.theta + yaw_rate *delta_t;
+      p.x += velocity / yaw_rate * (sin(theta_pred) - sin(p.theta));
+      p.y += velocity / yaw_rate * (cos(theta_pred) - cos(p.theta));
+      p.theta = theta_pred;
+    }
+    else
+    {
+      // Apply equations of motion model (turning)
+      p.x += velocity * delta_t * cos(p.theta);
+      p.y += velocity * delta_t * sin(p.theta);
+    }
+
+    //add noise to prediction
+    p.x += dist_x(gen);
+    p.y += dist_y(gen);
+    p.theta += dist_theta(gen);
+
+  }
   // for (size_t i = 0; i < particles.size(); ++i)
   // {
   //   Particle p = particles[i];
