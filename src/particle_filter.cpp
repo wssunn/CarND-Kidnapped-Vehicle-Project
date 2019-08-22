@@ -32,7 +32,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
    *   from GPS) and all weights to 1. 
    * Add random Gaussian noise to each particle.
    */
-  num_particles = 10;
+  num_particles = 10`;
   normal_distribution<double> dist_x(x, std[0]);
   normal_distribution<double> dist_y(y, std[1]);
   normal_distribution<double> dist_theta(theta, std[2]);
@@ -101,7 +101,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
 
     double theta_pred = p.theta + yaw_rate * delta_t;
     p.x += velocity / yaw_rate * (sin(theta_pred) - sin(p.theta));
-    p.y += velocity / yaw_rate * (cos(theta_pred) - cos(p.theta));
+    p.y += velocity / yaw_rate * (cos(p.theta) - cos(theta_pred));
     p.theta = theta_pred;
 
     //add noise to prediction
