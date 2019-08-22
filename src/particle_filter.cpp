@@ -55,12 +55,8 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
 void ParticleFilter::prediction(double delta_t, double std_pos[], 
                                 double velocity, double yaw_rate) {
-  /**
-   * TODO: Add measurements to each particle and add random Gaussian noise.
-   */
   for (auto &p : particles)
   {
-
     //add gaussian noise to the particles
     normal_distribution<double> dist_x(0.0, std_pos[0]);
     normal_distribution<double> dist_y(0.0, std_pos[1]);
@@ -75,8 +71,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
       p.theta = theta_pred;
     }
     else
-    {
-      // Apply equations of motion model (linear)
+    { // Apply equations of motion model (linear)
       // this is crucial, if the yaw rate is too small, there is a 
       // division by zero and the model will freeze
       p.x += velocity * delta_t * cos(p.theta);
@@ -89,33 +84,6 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
     p.theta += dist_theta(gen);
 
   }
-  // for (size_t i = 0; i < particles.size(); ++i)
-  // {
-  //   Particle p = particles[i];
-    
-  //   if (abs(yaw_rate) > 1e-5){
-  //     // Apply equations of motion model (turning)
-  //     double theta_pred = p.theta + yaw_rate * delta_t;
-  //     p.x += velocity / yaw_rate * (sin(theta_pred) - sin(p.theta));
-  //     p.y += velocity / yaw_rate * (cos(theta_pred) - cos(p.theta));
-  //   } else {
-  //     // Apply equations of motion model (turning)
-  //     p.x += velocity * delta_t * cos(p.theta);
-  //     p.y += velocity * delta_t * sin(p.theta);
-  //   }
-
-  //   //add gaussian noise to the particles
-  //   normal_distribution<double> dist_x(p.x, std[0]);
-  //   normal_distribution<double> dist_y(p.y, std[1]);
-  //   normal_distribution<double> dist_theta(p.theta, std[2]);
-
-  //   //Update particle with noisy prediction
-  //   particles[i].x = dist_x(gen);
-  //   particles[i].y = dist_y(gen);
-  //   particles[i].theta = dist_theta(gen);
-  // }
-
-
 }
 
 // struct LandmarkObs
@@ -151,20 +119,21 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs>& predicted,
 
 }
 
-void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], 
-                                   const vector<LandmarkObs> &observations, 
-                                   const Map &map_landmarks) {
-  /*
-  for each particle:
+/*
+  for each particle p:
     select landmarks within range
+
     for each observation:
       transform observation into map_coord
       data association
       compute weight
-    compute total weight by multiplying all possibilities
-    normalise weight
-  */
+      p.weight *= weight
 
+  normalise weight for all particles
+  */
+void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], 
+                                   const vector<LandmarkObs> &observations, 
+                                   const Map &map_landmarks) {
   // std values for landmark
   double std_x = std_landmark[0];
   double std_y = std_landmark[1];
@@ -189,9 +158,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     }
 
     // for each observation:**********************************************
-    //   transform observation into map_coord
-    //   data association
-    //   compute weight
     vector<LandmarkObs> observations_map_coord;
 
     for (const auto &obs_car : observations)
