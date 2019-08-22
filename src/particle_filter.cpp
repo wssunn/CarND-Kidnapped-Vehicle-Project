@@ -232,8 +232,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   //normalisation**********************************************************
   double norm_factor = 0.0;
   for (const auto &p: particles){norm_factor += p.weight;}
-  for (const auto &p: particles){
-    p.weight /= norm_factor;
+  for (auto &p: particles){
+    p.weight /= norm_factor + std::numeric_limits<double>::epsilon();
     }
 
 }//main function:updateweight
