@@ -287,7 +287,7 @@ void ParticleFilter::resample() {
   particles.clear();
   particles = resampled_particles;
 
-  reset all weights
+  //reset all weights
   for (auto &p : particles){p.weight = 1.0;}
 
 }//main function: resample
