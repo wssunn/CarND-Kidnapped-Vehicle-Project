@@ -71,7 +71,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
       // Apply equations of motion model (turning)
       double theta_pred = p.theta + yaw_rate *delta_t;
       p.x += velocity / yaw_rate * (sin(theta_pred) - sin(p.theta));
-      p.y += velocity / yaw_rate * (cos(theta_pred) - cos(p.theta));
+      p.y += velocity / yaw_rate * (cos(p.theta) - cos(theta_pred));
       p.theta = theta_pred;
     }
     else
