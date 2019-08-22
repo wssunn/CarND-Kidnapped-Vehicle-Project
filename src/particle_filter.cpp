@@ -272,6 +272,7 @@ void ParticleFilter::resample() {
    */
 
   vector<double> particle_weights;
+  particle_weights.clear();
   for (const auto &p : particles){particle_weights.push_back(p.weight);}
 
   std::discrete_distribution<int> weighted_dist(particle_weights.begin(),
@@ -283,10 +284,11 @@ void ParticleFilter::resample() {
     resampled_particles.push_back(particles[k]);
   }
 
+  particles.clear();
   particles = resampled_particles;
 
   //reset all weights
-  for (auto &p : particles){p.weight = 1.0;}
+  // for (auto &p : particles){p.weight = 1.0;}
 
 }//main function: resample
 
