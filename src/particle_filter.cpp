@@ -37,7 +37,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
   normal_distribution<double> dist_y(y, std[1]);
   normal_distribution<double> dist_theta(theta, std[2]);
 
-  for (size_t i=0; i < num_particles; ++i)
+  for (int i=0; i < num_particles; ++i)
   {
     // initialise a particle
     Particle p;
@@ -253,7 +253,7 @@ void ParticleFilter::resample() {
                                                 particle_weights.end());
   
   vector<Particle> resampled_particles;
-  for (unsigned int i = 0; i < num_particles; ++i){
+  for (int i = 0; i < num_particles; ++i){
     int k = weighted_dist(gen);
     resampled_particles.push_back(particles[k]);
   }
