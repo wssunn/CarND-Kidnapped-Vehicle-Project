@@ -32,7 +32,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
    *   from GPS) and all weights to 1. 
    * Add random Gaussian noise to each particle.
    */
-  num_particles = 10;
+  num_particles = 10;                                   //a small number of partiles to for better performance
   normal_distribution<double> dist_x(x, std[0]);
   normal_distribution<double> dist_y(y, std[1]);
   normal_distribution<double> dist_theta(theta, std[2]);
@@ -57,7 +57,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
                                 double velocity, double yaw_rate) {
   for (auto &p : particles)
   {
-    //add gaussian noise to the particles
+    //create gaussian noise to the particles
     normal_distribution<double> dist_x(0.0, std_pos[0]);
     normal_distribution<double> dist_y(0.0, std_pos[1]);
     normal_distribution<double> dist_theta(0.0, std_pos[2]);
@@ -86,12 +86,6 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
   }
 }
 
-// struct LandmarkObs
-// {
-//   int id;   // Id of matching landmark in the map.
-//   double x; // Local (vehicle coords) x position of landmark observation [m]
-//   double y; // Local (vehicle coords) y position of landmark observation [m]
-// };
 /**
    * dataAssociation Finds which observations correspond to which landmarks 
    *   (likely by using a nearest-neighbors data association).
